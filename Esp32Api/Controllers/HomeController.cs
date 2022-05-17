@@ -13,14 +13,23 @@ namespace Esp32Api.NewFolder
             ctx = localContext;
         }
         //register nwe data
-        [HttpGet("api/data/list")]
-        public List<TempData> Index()
+        [HttpGet("api/data/get")]
+        public Response<TempData> Index()
         {
-            return ctx.TempDatas.ToList();
+            try
+            {
+                var data = ctx.TempDatas.FirstOrDefault();
+                return new Response<TempData> { Data = data };
+            }
+            catch (Exception e)
+            {
+
+                return new Response<TempData> { IsSuccess = false, Message = e.Message };
+            }
         }
 
         [HttpGet("api/data/save/{value}")]
-        public string Save(decimal value)
+        public Response Save(decimal value)
         {
             try
             {
@@ -30,19 +39,13 @@ namespace Esp32Api.NewFolder
 
                 var data = ctx.TempDatas.Add(new TempData { Name = value, Id = Guid.NewGuid() });
                 ctx.SaveChanges();
-                return "success";
+                return new Response();
             }
             catch (Exception e)
             {
 
-                return e.Message;
+                return new Response { IsSuccess = false, Message = e.Message };
             }
-        }
-
-        [HttpGet("api/data")]
-        public dynamic Test()
-        {
-            return new { Id = "001", Data = "DATA" };
         }
     }
 }

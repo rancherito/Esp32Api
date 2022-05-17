@@ -1,9 +1,52 @@
 ﻿@page "/"
+@inject NavigationManager nav
+@using Esp32Api.Models
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (Temp == null)
+{
+    <i>SIN INICIALIZAR</i>
+}
+else
+{
+    <b>@Temp.Name</b>
+}
 
-Welcome to your new app.
+@code {
+    private HttpClient httpClient = new();
+    private TempData? Temp = null;
+    protected override void OnInitialized()
+    {
+        httpClient.BaseAddress = new Uri(nav.BaseUri);
+        getdata();
+    }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    private async void getdata()
+    {
+        while (true)
+        {
+            try
+            {
+                var data = await Utils.HttpGet<TempData>(httpClient, "api/data/get");
+
+                if (!data.IsSuccess || data.Data == null)
+                {
+                    Console.WriteLine("DATOS VACIOS");
+                }
+                else
+                {
+                    Temp = data.Data;
+                }
+
+                await Task.Delay(50);
+                StateHasChanged();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+    }
+}
