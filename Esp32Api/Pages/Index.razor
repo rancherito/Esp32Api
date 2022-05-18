@@ -3,6 +3,9 @@
 @using Esp32Api.Models
 
 <PageTitle>Index</PageTitle>
+<h3>LIMITE 2m</h3>
+<br />
+<h5>CONTEO: @Counter</h5>
 
 @if (Temp == null)
 {
@@ -11,13 +14,14 @@
 else
 {
     <div style="height: 200px; position: relative">
-        <div style="text-align: center ;line-height: 40px ;top: @(Temp.Value)%; position: absolute; height: 40px; width: 40px; transition: ease-in-out all .2s; border-radius: 50%; background-color: #3f51b5; color: white;">@Temp.Value</div>
+        <div style="text-align: center ;line-height: 40px ;top: @(Temp.Value)%; position: absolute; height: 40px; width: 40px; transition: ease-in-out all .2s; border-radius: 50%; background-color: #3f51b5; color: white;">@(Temp.Value * 2)cm</div>
     </div>
 }
 
 @code {
     private HttpClient httpClient = new();
     private decimal? Temp = null;
+    private int Counter = 0;
     protected override void OnInitialized()
     {
         httpClient.BaseAddress = new Uri(nav.BaseUri);
@@ -38,7 +42,13 @@ else
                 }
                 else
                 {
-                    Temp = (data.Data.Value > 110 ? 110 : (data.Data.Value < 10 ? 10 : data.Data.Value)) - 10;
+                    Temp = (data.Data.Value > 210 ? 210 : (data.Data.Value < 10 ? 10 : data.Data.Value)) - 10;
+                    Temp = Temp / 2;
+
+                    if (Temp < 100)
+                    {
+                        Counter++;
+                    }
                 }
 
                 //await Task.Delay(50);
