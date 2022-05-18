@@ -3,6 +3,6 @@
     public class TempData
     {
         public Guid Id { get; set; }
-        public decimal Name { get; set; }
+        public decimal Value { get; set; }
     }
 }

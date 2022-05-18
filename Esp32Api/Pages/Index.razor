@@ -10,12 +10,14 @@
 }
 else
 {
-    <b>@Temp.Name</b>
+    <div style="height: 200px; position: relative">
+        <div style="text-align: center ;line-height: 40px ;top: @(Temp.Value)%; position: absolute; height: 40px; width: 40px; transition: ease-in-out all .2s; border-radius: 50%; background-color: #3f51b5; color: white;">@Temp.Value</div>
+    </div>
 }
 
 @code {
     private HttpClient httpClient = new();
-    private TempData? Temp = null;
+    private decimal? Temp = null;
     protected override void OnInitialized()
     {
         httpClient.BaseAddress = new Uri(nav.BaseUri);
@@ -36,10 +38,10 @@ else
                 }
                 else
                 {
-                    Temp = data.Data;
+                    Temp = (data.Data.Value > 110 ? 110 : (data.Data.Value < 10 ? 10 : data.Data.Value)) - 10;
                 }
 
-                await Task.Delay(50);
+                //await Task.Delay(50);
                 StateHasChanged();
             }
             catch (Exception e)

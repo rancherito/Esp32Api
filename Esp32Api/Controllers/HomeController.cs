@@ -37,7 +37,7 @@ namespace Esp32Api.NewFolder
                 ctx.TempDatas.RemoveRange(ctx.TempDatas);
                 ctx.SaveChanges();
 
-                var data = ctx.TempDatas.Add(new TempData { Name = value, Id = Guid.NewGuid() });
+                var data = ctx.TempDatas.Add(new TempData { Value = value, Id = Guid.NewGuid() });
                 ctx.SaveChanges();
                 return new Response();
             }
