@@ -3,7 +3,12 @@
 @using Esp32Api.Models
 
 <PageTitle>Index</PageTitle>
-<h3>LIMITE 2m</h3>
+
+<div class="form-group">
+    <label for="ex">Caibrado a (cm)</label>
+    <input @bind-value="Calibration" type="number" class="form-control" id="ex"  placeholder="Calibrador">
+</div>
+
 <br />
 <h5>CONTEO: @Counter</h5>
 
@@ -14,7 +19,7 @@
 else
 {
     <div style="height: 200px; position: relative">
-        <div style="text-align: center ;line-height: 40px ;top: @(Temp.Value)%; position: absolute; height: 40px; width: 40px; transition: ease-in-out all .2s; border-radius: 50%; background-color: #3f51b5; color: white;">@(Temp.Value * 2)cm</div>
+        <div style="text-align: center ;line-height: 50px ;top: @(Temp.Value)%; position: absolute; height: 50px; width: 50px; transition: ease-in-out all .2s; border-radius: 50%; background-color: #3f51b5; color: white;">@(Temp.Value)cm</div>
     </div>
 }
 
@@ -22,9 +27,13 @@ else
     private HttpClient httpClient = new();
     private decimal? Temp = null;
     private int Counter = 0;
+    private int Calibration = 100;
+    private bool CatchVariation = false;
+    private int value = 0;
     protected override void OnInitialized()
     {
         httpClient.BaseAddress = new Uri(nav.BaseUri);
+        StateHasChanged();
         getdata();
     }
 
@@ -42,13 +51,21 @@ else
                 }
                 else
                 {
-                    Temp = (data.Data.Value > 210 ? 210 : (data.Data.Value < 10 ? 10 : data.Data.Value)) - 10;
-                    Temp = Temp / 2;
+                    Temp = data.Data.Value <= 0 || data.Data.Value >= Calibration ? Calibration : data.Data.Value;
 
-                    if (Temp < 100)
+
+                    if (Temp < Calibration && !CatchVariation)
+                    {
+                        //Counter++;
+                        CatchVariation = true;
+                    }
+                    if (CatchVariation && Temp >= Calibration)
                     {
                         Counter++;
+                        CatchVariation = false;
                     }
+                    StateHasChanged();
+
                 }
 
                 //await Task.Delay(50);

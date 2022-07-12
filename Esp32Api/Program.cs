@@ -1,18 +1,27 @@
 using Esp32Api;
 using Esp32Api.Data;
 using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddDbContext<LocalContext>(options =>
+//builder.Services.AddDbContext<LocalContext>(options =>
+//{
+//    options.UseSqlite("Data Source = EspProject.db");
+//});
+try
 {
-    options.UseSqlite("Data Source = EspProject.db");
-});
+    builder.Services.AddDbContext<LocalContext>(
+        item => item.UseSqlServer(builder.Configuration.GetConnectionString("esp32conn"))
+    );
+}
+catch (Exception e)
+{
 
+    Console.WriteLine(e.Message);
+}
 
 var app = builder.Build();
 

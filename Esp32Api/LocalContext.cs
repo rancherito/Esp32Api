@@ -9,6 +9,6 @@ namespace Esp32Api
         {
 
         }
-        public DbSet<TempData> TempDatas { get; set; }
+        public DbSet<TempData> TempDatas { get; set; } = null!;
     }
 }
