@@ -10,5 +10,7 @@ namespace Esp32Api
 
         }
         public DbSet<TempData> TempDatas { get; set; } = null!;
+        public DbSet<DataSensored> DataSensored { get; set; } = null!;
+
     }
 }

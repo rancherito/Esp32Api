@@ -1,9 +1,12 @@
 ﻿@page "/"
 @inject NavigationManager nav
+@inject IJSRuntime JS
+@inject LocalContext localContext
 @using Esp32Api.Models
+@using System.Text.Json
+@using Microsoft.EntityFrameworkCore
 
 <PageTitle>Index</PageTitle>
-
 <div class="form-group">
     <label for="ex">Caibrado a (cm)</label>
     <input @bind-value="Calibration" type="number" class="form-control" id="ex"  placeholder="Calibrador">
@@ -19,7 +22,7 @@
 else
 {
     <div style="height: 200px; position: relative">
-        <div style="text-align: center ;line-height: 50px ;top: @(Temp.Value)%; position: absolute; height: 50px; width: 50px; transition: ease-in-out all .2s; border-radius: 50%; background-color: #3f51b5; color: white;">@(Temp.Value)cm</div>
+        <div style="min-height: 20px;text-align: center; display: flex; justify-content: center; align-items: center; top: 0; position: absolute; height: @((Temp.Value/Calibration) * 100)%; width: 50px; transition: ease-in-out all .2s; border-radius: .5rem; background-color: #3f51b5; color: white;">@(Temp.Value)cm</div>
     </div>
 }
 
@@ -32,10 +35,36 @@ else
     private int value = 0;
     protected override void OnInitialized()
     {
-        httpClient.BaseAddress = new Uri(nav.BaseUri);
-        StateHasChanged();
+        //httpClient.BaseAddress = new Uri(nav.BaseUri);
+        //StateHasChanged();
         getdata();
     }
+    private async Task SaveCounter(int count, DateTime date)
+    {
+        try
+        {
+            
+        }
+        catch (Exception )
+            {
+
+                //return new Response<TempData> { IsSuccess = false, Message = e.Message };
+            }
+    }
+
+    private async Task<Response<TempData>> Indexd()
+        {
+            try
+            {
+                var data = await localContext.TempDatas.FirstOrDefaultAsync();
+                return new Response<TempData> { Data = data };
+            }
+            catch (Exception e)
+            {
+
+                return new Response<TempData> { IsSuccess = false, Message = e.Message };
+            }
+        }
 
     private async void getdata()
     {
@@ -43,7 +72,10 @@ else
         {
             try
             {
-                var data = await Utils.HttpGet<TempData>(httpClient, "api/data/get");
+                Console.WriteLine(httpClient.BaseAddress);
+                var data = await Indexd();
+
+                //await JS.InvokeVoidAsync("console.log", JsonSerializer.Serialize(data));
 
                 if (!data.IsSuccess || data.Data == null)
                 {
@@ -52,7 +84,6 @@ else
                 else
                 {
                     Temp = data.Data.Value <= 0 || data.Data.Value >= Calibration ? Calibration : data.Data.Value;
-
 
                     if (Temp < Calibration && !CatchVariation)
                     {
